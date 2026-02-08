@@ -3,7 +3,10 @@
     "allow": [
       "Bash(uv run python:*)",
       "Bash(docker compose exec:*)",
-      "Bash(make setup:*)"
+      "Bash(make setup:*)",
+      "Bash(git -C /Users/ddrake/development/wardrobe-app config user.email)",
+      "Bash(ssh-keygen:*)",
+      "Bash(ssh-add:*)"
     ]
   }
 }
