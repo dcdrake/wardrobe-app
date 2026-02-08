@@ -16,7 +16,15 @@ const brand = ref('')
 const loading = ref(false)
 const error = ref('')
 
-const types = ['tshirt', 'shirt', 'polo', 'sweater', 'jacket', 'blazer', 'jeans', 'chinos', 'trousers', 'shorts', 'sneakers', 'boots', 'dress_shoes', 'other']
+const types = [
+  { label: 'Tops', items: ['tshirt', 'shirt', 'polo', 'sweater', 'hoodie', 'tank_top', 'blouse', 'crop_top'] },
+  { label: 'Outerwear', items: ['jacket', 'blazer', 'coat', 'vest', 'cardigan'] },
+  { label: 'Bottoms', items: ['jeans', 'chinos', 'trousers', 'shorts', 'skirt', 'leggings'] },
+  { label: 'Full Body', items: ['dress', 'jumpsuit', 'romper', 'suit'] },
+  { label: 'Footwear', items: ['sneakers', 'boots', 'dress_shoes', 'loafers', 'sandals', 'heels', 'flats'] },
+  { label: 'Accessories', items: ['belt', 'watch', 'tie', 'bow_tie', 'hat', 'scarf', 'sunglasses', 'necklace', 'bracelet', 'earrings', 'ring', 'bag', 'backpack', 'pocket_square', 'cufflinks', 'gloves'] },
+  { label: 'Other', items: ['other'] },
+]
 
 function onFile(e) {
   file.value = e.target.files[0]
@@ -57,7 +65,9 @@ async function submit() {
           <label class="block text-sm font-medium mb-1">Type</label>
           <select v-model="itemType" class="w-full px-3 py-2 border rounded-lg">
             <option value="">Let AI decide</option>
-            <option v-for="t in types" :key="t" :value="t">{{ t }}</option>
+            <optgroup v-for="group in types" :key="group.label" :label="group.label">
+              <option v-for="t in group.items" :key="t" :value="t">{{ t.replace(/_/g, ' ') }}</option>
+            </optgroup>
           </select>
         </div>
         <div>

@@ -5,28 +5,58 @@ from django.conf import settings
 
 class ClothingItem(models.Model):
     class ItemType(models.TextChoices):
+        # Tops
         TSHIRT = 'tshirt', 'T-Shirt'
         SHIRT = 'shirt', 'Dress Shirt'
         POLO = 'polo', 'Polo Shirt'
         SWEATER = 'sweater', 'Sweater'
         HOODIE = 'hoodie', 'Hoodie'
+        TANK_TOP = 'tank_top', 'Tank Top'
+        BLOUSE = 'blouse', 'Blouse'
+        CROP_TOP = 'crop_top', 'Crop Top'
+        # Outerwear
         JACKET = 'jacket', 'Jacket'
         BLAZER = 'blazer', 'Blazer'
         COAT = 'coat', 'Coat'
+        VEST = 'vest', 'Vest'
+        CARDIGAN = 'cardigan', 'Cardigan'
+        # Bottoms
         JEANS = 'jeans', 'Jeans'
         CHINOS = 'chinos', 'Chinos'
         TROUSERS = 'trousers', 'Dress Trousers'
         SHORTS = 'shorts', 'Shorts'
+        SKIRT = 'skirt', 'Skirt'
+        LEGGINGS = 'leggings', 'Leggings'
+        # Full body
+        DRESS = 'dress', 'Dress'
+        JUMPSUIT = 'jumpsuit', 'Jumpsuit'
+        ROMPER = 'romper', 'Romper'
+        SUIT = 'suit', 'Suit'
+        # Footwear
         SNEAKERS = 'sneakers', 'Sneakers'
         BOOTS = 'boots', 'Boots'
         DRESS_SHOES = 'dress_shoes', 'Dress Shoes'
         LOAFERS = 'loafers', 'Loafers'
         SANDALS = 'sandals', 'Sandals'
+        HEELS = 'heels', 'Heels'
+        FLATS = 'flats', 'Flats'
+        # Accessories
         BELT = 'belt', 'Belt'
         WATCH = 'watch', 'Watch'
         TIE = 'tie', 'Tie'
+        BOW_TIE = 'bow_tie', 'Bow Tie'
         HAT = 'hat', 'Hat'
         SCARF = 'scarf', 'Scarf'
+        SUNGLASSES = 'sunglasses', 'Sunglasses'
+        NECKLACE = 'necklace', 'Necklace'
+        BRACELET = 'bracelet', 'Bracelet'
+        EARRINGS = 'earrings', 'Earrings'
+        RING = 'ring', 'Ring'
+        BAG = 'bag', 'Bag'
+        BACKPACK = 'backpack', 'Backpack'
+        POCKET_SQUARE = 'pocket_square', 'Pocket Square'
+        CUFFLINKS = 'cufflinks', 'Cufflinks'
+        GLOVES = 'gloves', 'Gloves'
         OTHER = 'other', 'Other'
     
     class Pattern(models.TextChoices):
@@ -48,7 +78,7 @@ class ClothingItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='clothing_items')
     image = models.ImageField(upload_to='clothing/%Y/%m/')
-    item_type = models.CharField(max_length=20, choices=ItemType.choices, blank=True)
+    item_type = models.CharField(max_length=30, choices=ItemType.choices, blank=True)
     colors = models.JSONField(default=list)
     pattern = models.CharField(max_length=20, choices=Pattern.choices, default=Pattern.SOLID)
     material = models.CharField(max_length=50, blank=True)
