@@ -1,0 +1,30 @@
+[project]
+name = "wardrobe-backend"
+version = "0.1.0"
+description = "Wardrobe stylist app backend"
+requires-python = ">=3.11"
+dependencies = [
+    "django>=5.0",
+    "djangorestframework>=3.14",
+    "djangorestframework-simplejwt>=5.3",
+    "django-cors-headers>=4.3",
+    "psycopg[binary]>=3.1",
+    "pillow>=10.0",
+    "httpx>=0.27",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-django>=4.8",
+    "ruff>=0.4",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = "test_*.py"

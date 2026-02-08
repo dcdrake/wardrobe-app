@@ -1,0 +1,20 @@
+{
+  "name": "wardrobe-stylist",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "dev": "concurrently \"pnpm:dev:*\"",
+    "dev:backend": "cd apps/backend && uv run python manage.py runserver",
+    "dev:frontend": "pnpm --filter @wardrobe/frontend dev",
+    "build": "pnpm --filter @wardrobe/frontend build",
+    "lint": "pnpm --filter @wardrobe/frontend lint",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "migrate": "cd apps/backend && uv run python manage.py migrate",
+    "setup": "pnpm install && cd apps/backend && uv sync && cp -n .env.example .env || true && cd ../.. && pnpm db:up && sleep 2 && pnpm migrate"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
