@@ -19,7 +19,10 @@ onMounted(() => store.fetchItems())
   <div>
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">My Wardrobe</h1>
-      <RouterLink to="/wardrobe/add" class="bg-blue-600 text-white px-4 py-2 rounded-lg">+ Add Item</RouterLink>
+      <div class="flex gap-2">
+        <RouterLink to="/wardrobe/batch-add" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg">Batch Upload</RouterLink>
+        <RouterLink to="/wardrobe/add" class="bg-blue-600 text-white px-4 py-2 rounded-lg">+ Add Item</RouterLink>
+      </div>
     </div>
     
     <select v-model="filter" class="mb-6 px-3 py-2 border rounded-lg">

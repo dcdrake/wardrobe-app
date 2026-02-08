@@ -7,21 +7,37 @@ const store = useWardrobeStore()
 const occasion = ref('')
 const suggestions = ref(null)
 const loading = ref(false)
+const streaming = ref(false)
+const streamingText = ref('')
 const error = ref('')
 
 const hasItems = computed(() => store.items.length > 0)
 
 onMounted(() => store.fetchItems())
 
-async function getSuggestions() {
+function getSuggestions() {
   if (!occasion.value.trim()) return
   loading.value = true
+  streaming.value = true
+  streamingText.value = ''
+  suggestions.value = null
   error.value = ''
-  try {
-    const { data } = await outfitApi.suggest(occasion.value)
-    suggestions.value = data
-  } catch (e) { error.value = e.response?.data?.error || 'Failed' }
-  finally { loading.value = false }
+
+  outfitApi.suggestStream(occasion.value, {
+    onToken(token) {
+      streamingText.value += token
+    },
+    onDone(data) {
+      suggestions.value = data
+      streaming.value = false
+      loading.value = false
+    },
+    onError(err) {
+      error.value = err || 'Failed'
+      streaming.value = false
+      loading.value = false
+    },
+  })
 }
 
 const getItem = (id) => store.getItemById(id)
@@ -30,19 +46,27 @@ const getItem = (id) => store.getItemById(id)
 <template>
   <div class="max-w-4xl mx-auto">
     <h1 class="text-2xl font-bold mb-6">What Should I Wear?</h1>
-    
+
     <div v-if="!hasItems" class="bg-yellow-50 text-yellow-800 p-4 rounded-lg mb-6">
       Add some clothes first! <RouterLink to="/wardrobe/add" class="underline">Add items →</RouterLink>
     </div>
 
     <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
-      <textarea v-model="occasion" rows="2" placeholder="e.g., Job interview at a tech startup..." 
+      <textarea v-model="occasion" rows="2" placeholder="e.g., Job interview at a tech startup..."
         class="w-full px-3 py-2 border rounded-lg" :disabled="!hasItems"></textarea>
-      <button @click="getSuggestions" :disabled="loading || !hasItems" 
+      <button @click="getSuggestions" :disabled="loading || !hasItems"
         class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg disabled:opacity-50">
-        {{ loading ? 'Thinking...' : 'Get Outfit Ideas' }}
+        {{ loading ? 'Generating...' : 'Get Outfit Ideas' }}
       </button>
       <p v-if="error" class="mt-4 text-red-600">{{ error }}</p>
+    </div>
+
+    <div v-if="streaming && streamingText" class="bg-white p-6 rounded-lg shadow-sm mb-6">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+        <span class="text-sm text-gray-500">Generating suggestions...</span>
+      </div>
+      <pre class="whitespace-pre-wrap text-sm text-gray-700 font-mono">{{ streamingText }}</pre>
     </div>
 
     <div v-if="suggestions" class="space-y-6">

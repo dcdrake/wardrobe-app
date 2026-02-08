@@ -11,11 +11,16 @@ class AIProvider(ABC):
     @abstractmethod
     def analyze_clothing(self, image_path: str) -> dict:
         pass
-    
+
     @abstractmethod
     def suggest_outfits(self, wardrobe: list[dict], occasion: str) -> list[dict]:
         pass
-    
+
+    def suggest_outfits_stream(self, wardrobe: list[dict], occasion: str):
+        """Yield tokens as they stream from the model. Default falls back to non-streaming."""
+        result = self.suggest_outfits(wardrobe, occasion)
+        yield json.dumps({"suggestions": result})
+
     def _get_analysis_prompt(self) -> str:
         return """Analyze this clothing item. Respond in JSON:
 {
@@ -31,11 +36,16 @@ Only respond with JSON."""
         items = json.dumps([{'id': i['id'], 'type': i['item_type'], 'colors': i['colors'], 'formality': i['formality']} for i in wardrobe], indent=2)
         return f"""Suggest 2-3 outfits for: "{occasion}"
 
+RULES:
+- Every outfit MUST include at least a top, a bottom, and shoes.
+- Include at least one minimal outfit (top + bottom + shoes only) and one with additional accessories (e.g. belt, watch, scarf, hat).
+- Only use item IDs from the wardrobe below.
+
 WARDROBE:
 {items}
 
 Respond in JSON:
-{{"suggestions": [{{"item_ids": ["id1", "id2"], "explanation": "Why this works"}}]}}
+{{"suggestions": [{{"item_ids": ["id1", "id2", "id3"], "explanation": "Why this works"}}]}}
 Only respond with JSON."""
 
     def _parse_json(self, text: str) -> dict:
@@ -50,7 +60,7 @@ Only respond with JSON."""
 class PlaceholderProvider(AIProvider):
     def analyze_clothing(self, image_path: str) -> dict:
         return {'item_type': 'other', 'colors': ['unknown'], 'pattern': 'solid', 'material': '', 'formality': 'casual'}
-    
+
     def suggest_outfits(self, wardrobe: list[dict], occasion: str) -> list[dict]:
         return [{'item_ids': [i['id'] for i in wardrobe[:3]], 'explanation': f'Placeholder for "{occasion}"'}]
 
@@ -59,23 +69,43 @@ class OllamaProvider(AIProvider):
     def __init__(self):
         self.base_url = settings.OLLAMA_BASE_URL
         self.model = settings.OLLAMA_MODEL
-    
+        self.text_model = settings.OLLAMA_TEXT_MODEL
+
     def analyze_clothing(self, image_path: str) -> dict:
         import httpx
         image_b64 = base64.b64encode(Path(image_path).read_bytes()).decode()
         response = httpx.post(f"{self.base_url}/api/generate", json={
-            "model": self.model, "prompt": self._get_analysis_prompt(),
-            "images": [image_b64], "stream": False
-        }, timeout=60.0)
+            "model": self.model,
+            "prompt": "/no_think " + self._get_analysis_prompt(),
+            "images": [image_b64], "stream": False,
+        }, timeout=180.0)
         return self._parse_json(response.json().get('response', '{}'))
-    
+
     def suggest_outfits(self, wardrobe: list[dict], occasion: str) -> list[dict]:
         import httpx
         response = httpx.post(f"{self.base_url}/api/generate", json={
-            "model": self.model.replace('-vision', ''),
-            "prompt": self._get_outfit_prompt(wardrobe, occasion), "stream": False
-        }, timeout=60.0)
+            "model": self.text_model,
+            "prompt": "/no_think " + self._get_outfit_prompt(wardrobe, occasion),
+            "stream": False,
+        }, timeout=180.0)
         return self._parse_json(response.json().get('response', '{}')).get('suggestions', [])
+
+    def suggest_outfits_stream(self, wardrobe: list[dict], occasion: str):
+        import httpx
+        with httpx.stream("POST", f"{self.base_url}/api/generate", json={
+            "model": self.text_model,
+            "prompt": "/no_think " + self._get_outfit_prompt(wardrobe, occasion),
+            "stream": True,
+        }, timeout=180.0) as response:
+            for line in response.iter_lines():
+                if not line:
+                    continue
+                chunk = json.loads(line)
+                token = chunk.get("response", "")
+                if token:
+                    yield token
+                if chunk.get("done"):
+                    break
 
 
 def get_ai_provider() -> AIProvider:

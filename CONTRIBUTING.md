@@ -106,16 +106,16 @@ Default credentials (see `docker-compose.yml`):
 
 Copy `apps/backend/.env.example` to `apps/backend/.env`. Key variables:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SECRET_KEY` | Django secret key | dev key (change in prod) |
-| `DEBUG` | Debug mode | `True` |
-| `DB_NAME` | PostgreSQL database | `wardrobe` |
-| `DB_USER` | Database user | `postgres` |
-| `DB_PASSWORD` | Database password | `postgres` |
-| `AI_PROVIDER` | AI backend: `placeholder`, `ollama`, `replicate` | `placeholder` |
-| `OLLAMA_BASE_URL` | Ollama API URL | `http://localhost:11434` |
-| `OLLAMA_MODEL` | Ollama model name | `qwen2-vl:7b` |
+| Variable          | Description                                      | Default                  |
+| ----------------- | ------------------------------------------------ | ------------------------ |
+| `SECRET_KEY`      | Django secret key                                | dev key (change in prod) |
+| `DEBUG`           | Debug mode                                       | `True`                   |
+| `DB_NAME`         | PostgreSQL database                              | `wardrobe`               |
+| `DB_USER`         | Database user                                    | `postgres`               |
+| `DB_PASSWORD`     | Database password                                | `postgres`               |
+| `AI_PROVIDER`     | AI backend: `placeholder`, `ollama`, `replicate` | `placeholder`            |
+| `OLLAMA_BASE_URL` | Ollama API URL                                   | `http://localhost:11434` |
+| `OLLAMA_MODEL`    | Ollama model name                                | `qwen3-vl:4b`            |
 
 ## AI Providers
 

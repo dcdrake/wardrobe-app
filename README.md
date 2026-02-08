@@ -34,15 +34,15 @@ This starts:
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `make setup` | Full setup (install, db, migrate) |
-| `make dev` | Run both servers |
-| `make db-up` | Start PostgreSQL |
-| `make db-down` | Stop PostgreSQL |
-| `make migrate` | Run Django migrations |
-| `make build` | Build frontend |
-| `make clean` | Remove artifacts |
+| Command        | Description                       |
+| -------------- | --------------------------------- |
+| `make setup`   | Full setup (install, db, migrate) |
+| `make dev`     | Run both servers                  |
+| `make db-up`   | Start PostgreSQL                  |
+| `make db-down` | Stop PostgreSQL                   |
+| `make migrate` | Run Django migrations             |
+| `make build`   | Build frontend                    |
+| `make clean`   | Remove artifacts                  |
 
 ## Tech Stack
 
@@ -60,7 +60,7 @@ AI_PROVIDER=placeholder
 
 # For Ollama (local)
 OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=qwen2-vl:7b
+OLLAMA_MODEL=qwen3-vl:4b
 ```
 
 ## Development

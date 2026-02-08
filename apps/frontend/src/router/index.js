@@ -7,6 +7,7 @@ const routes = [
   { path: '/signup', component: () => import('../views/SignupView.vue'), meta: { guest: true } },
   { path: '/wardrobe', component: () => import('../views/WardrobeView.vue'), meta: { auth: true } },
   { path: '/wardrobe/add', component: () => import('../views/AddItemView.vue'), meta: { auth: true } },
+  { path: '/wardrobe/batch-add', component: () => import('../views/BatchUploadView.vue'), meta: { auth: true } },
   { path: '/wardrobe/:id', component: () => import('../views/ItemDetailView.vue'), meta: { auth: true } },
   { path: '/outfits', component: () => import('../views/OutfitsView.vue'), meta: { auth: true } },
 ]
