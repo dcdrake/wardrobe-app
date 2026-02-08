@@ -1,0 +1,1 @@
+- Database tables must use snake_case for names. Do not combine words (e.g. `clothing_item` not `clothingitem`, `outfit_suggestion` not `outfitsuggestion`).

@@ -90,8 +90,9 @@ class ClothingItem(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
+        db_table = 'wardrobe_clothing_item'
         ordering = ['-created_at']
-    
+
     def __str__(self):
         return f"{self.get_item_type_display()} - {', '.join(self.colors[:2])}"
 
@@ -104,4 +105,5 @@ class OutfitSuggestion(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
+        db_table = 'wardrobe_outfit_suggestion'
         ordering = ['-created_at']
