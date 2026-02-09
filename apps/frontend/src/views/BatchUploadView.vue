@@ -128,34 +128,34 @@ function cancel() {
 
 <template>
   <div class="max-w-4xl mx-auto">
-    <h1 class="text-2xl font-bold mb-6">Batch Upload</h1>
+    <h1 class="text-3xl font-serif font-semibold text-espresso-800 mb-8">Batch Upload</h1>
 
     <!-- File selection area -->
     <div
       v-if="!uploading && !done"
-      class="border-2 border-dashed rounded-lg p-8 text-center mb-6 transition-colors"
-      :class="items.length >= 20 ? 'border-gray-300 bg-gray-50' : 'border-blue-300 hover:border-blue-400 cursor-pointer'"
+      class="border-2 border-dashed rounded-xl p-8 text-center mb-6 transition-colors"
+      :class="items.length >= 20 ? 'border-sand-200 bg-sand-50' : 'border-sand-300 hover:border-terracotta-400 cursor-pointer'"
       @click="items.length < 20 && $refs.input.click()"
       @dragover.prevent
       @drop="onDrop"
     >
       <input ref="input" type="file" accept="image/*" multiple class="hidden" @change="onFileSelect" />
-      <p class="text-4xl mb-2">+</p>
-      <p class="text-lg">Drop images here or click to select</p>
-      <p class="text-sm text-gray-500 mt-1">{{ items.length }} / 20 images selected</p>
+      <p class="text-4xl mb-2 text-charcoal-300">+</p>
+      <p class="text-lg text-charcoal-500">Drop images here or click to select</p>
+      <p class="text-sm text-charcoal-300 mt-1">{{ items.length }} / 20 images selected</p>
     </div>
 
     <!-- Google Photos button -->
     <div v-if="googleConfigured && !uploading && !done && !items.length" class="mb-6">
       <div class="flex items-center gap-3 mb-4">
-        <div class="flex-1 border-t border-gray-300" />
-        <span class="text-sm text-gray-500">or</span>
-        <div class="flex-1 border-t border-gray-300" />
+        <div class="flex-1 border-t border-sand-200" />
+        <span class="text-sm text-charcoal-300">or</span>
+        <div class="flex-1 border-t border-sand-200" />
       </div>
       <button
         @click="pickGooglePhotos"
         :disabled="pickerLoading"
-        class="w-full py-3 px-4 border-2 border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+        class="w-full py-3 px-4 border-2 border-sand-200 rounded-xl hover:border-terracotta-400 hover:bg-sand-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
       >
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="currentColor"/>
@@ -167,14 +167,14 @@ function cancel() {
 
     <!-- Progress bar -->
     <div v-if="uploading || done" class="mb-6">
-      <div class="flex justify-between text-sm mb-1">
+      <div class="flex justify-between text-sm mb-1 text-charcoal-400">
         <span v-if="uploading">{{ processed }} of {{ items.length }} items processed</span>
         <span v-else>Done &mdash; {{ doneCount }} items added</span>
       </div>
-      <div class="w-full bg-gray-200 rounded-full h-2">
+      <div class="w-full bg-sand-200 rounded-full h-2">
         <div
           class="h-2 rounded-full transition-all"
-          :class="done ? 'bg-green-500' : 'bg-blue-500'"
+          :class="done ? 'bg-green-500' : 'bg-terracotta-400'"
           :style="{ width: (items.length ? (processed / items.length) * 100 : 0) + '%' }"
         />
       </div>
@@ -183,7 +183,7 @@ function cancel() {
     <!-- Thumbnail grid -->
     <div v-if="items.length" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-6">
       <div v-for="(item, i) in items" :key="i" class="relative group">
-        <img :src="item.preview" class="w-full aspect-square object-cover rounded-lg" referrerpolicy="no-referrer" />
+        <img :src="item.preview" class="w-full aspect-square object-cover rounded-xl" referrerpolicy="no-referrer" />
 
         <!-- Remove button (before upload) -->
         <button
@@ -195,12 +195,12 @@ function cancel() {
         <!-- Status overlay -->
         <div
           v-if="item.status !== 'pending' || uploading"
-          class="absolute inset-0 rounded-lg flex flex-col items-center justify-center"
+          class="absolute inset-0 rounded-xl flex flex-col items-center justify-center"
           :class="{
-            'bg-black/40': item.status === 'processing',
+            'bg-espresso-900/40': item.status === 'processing',
             'bg-green-500/30': item.status === 'done',
             'bg-red-500/30': item.status === 'error',
-            'bg-black/20': item.status === 'pending' && uploading,
+            'bg-espresso-900/20': item.status === 'pending' && uploading,
           }"
         >
           <!-- Spinner -->
@@ -209,13 +209,13 @@ function cancel() {
           <!-- Done checkmark + type -->
           <template v-if="item.status === 'done'">
             <span class="text-green-700 text-2xl font-bold">&#10003;</span>
-            <span class="text-xs bg-white/80 rounded px-1 mt-1">{{ item.result?.item_type_display || 'Added' }}</span>
+            <span class="text-xs bg-cream/80 rounded px-1 mt-1">{{ item.result?.item_type_display || 'Added' }}</span>
           </template>
 
           <!-- Error -->
           <template v-if="item.status === 'error'">
             <span class="text-red-700 text-2xl font-bold">&times;</span>
-            <span class="text-xs bg-white/80 rounded px-1 mt-1">Failed</span>
+            <span class="text-xs bg-cream/80 rounded px-1 mt-1">Failed</span>
           </template>
         </div>
       </div>
@@ -227,15 +227,15 @@ function cancel() {
         <button
           :disabled="!items.length"
           @click="upload"
-          class="bg-blue-600 text-white px-6 py-2 rounded-lg disabled:opacity-50"
+          class="bg-terracotta-500 hover:bg-terracotta-600 text-white px-6 py-2.5 rounded-lg disabled:opacity-50"
         >{{ source === 'google' ? 'Import' : 'Upload' }} {{ items.length }} Item{{ items.length !== 1 ? 's' : '' }}</button>
-        <RouterLink to="/wardrobe" class="px-6 py-2 border rounded-lg">Cancel</RouterLink>
+        <RouterLink to="/wardrobe" class="px-6 py-2.5 border border-sand-300 hover:border-espresso-600 rounded-lg text-espresso-800">Cancel</RouterLink>
       </template>
       <template v-else-if="uploading">
-        <button @click="cancel" class="px-6 py-2 border border-red-300 text-red-600 rounded-lg">Cancel Upload</button>
+        <button @click="cancel" class="px-6 py-2.5 border border-red-300 text-red-600 rounded-lg hover:bg-red-50">Cancel Upload</button>
       </template>
       <template v-else>
-        <RouterLink to="/wardrobe" class="bg-blue-600 text-white px-6 py-2 rounded-lg">Back to Wardrobe</RouterLink>
+        <RouterLink to="/wardrobe" class="bg-terracotta-500 hover:bg-terracotta-600 text-white px-6 py-2.5 rounded-lg">Back to Wardrobe</RouterLink>
       </template>
     </div>
   </div>

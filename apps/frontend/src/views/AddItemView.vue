@@ -50,20 +50,23 @@ async function submit() {
 
 <template>
   <div class="max-w-2xl mx-auto">
-    <h1 class="text-2xl font-bold mb-6">Add Clothing Item</h1>
-    <form @submit.prevent="submit" class="bg-white p-6 rounded-lg shadow-sm">
+    <h1 class="text-3xl font-serif font-semibold text-espresso-800 mb-8">Add Clothing Item</h1>
+    <form @submit.prevent="submit" class="bg-cream p-8 rounded-xl border border-sand-200/60">
       <div v-if="error" class="bg-red-50 text-red-600 p-3 rounded mb-4">{{ error }}</div>
-      
-      <div class="mb-6 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer" @click="$refs.input.click()">
+
+      <div class="mb-6 border-2 border-dashed border-sand-200 hover:border-terracotta-400 rounded-xl p-4 text-center cursor-pointer transition-colors" @click="$refs.input.click()">
         <input ref="input" type="file" accept="image/*" class="hidden" @change="onFile" />
-        <img v-if="preview" :src="preview" class="max-h-64 mx-auto rounded" />
-        <div v-else class="py-8"><p class="text-4xl mb-2">📷</p><p>Click to upload</p></div>
+        <img v-if="preview" :src="preview" class="max-h-64 mx-auto rounded-lg" />
+        <div v-else class="py-8">
+          <p class="text-4xl mb-2">+</p>
+          <p class="text-charcoal-400">Click to upload a photo</p>
+        </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium mb-1">Type</label>
-          <select v-model="itemType" class="w-full px-3 py-2 border rounded-lg">
+          <label class="block text-xs tracking-wider uppercase text-charcoal-400 mb-2">Type</label>
+          <select v-model="itemType" class="w-full px-3 py-2 bg-cream border border-sand-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-terracotta-400 focus:border-transparent">
             <option value="">Let AI decide</option>
             <optgroup v-for="group in types" :key="group.label" :label="group.label">
               <option v-for="t in group.items" :key="t" :value="t">{{ t.replace(/_/g, ' ') }}</option>
@@ -71,8 +74,8 @@ async function submit() {
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Pattern</label>
-          <select v-model="pattern" class="w-full px-3 py-2 border rounded-lg">
+          <label class="block text-xs tracking-wider uppercase text-charcoal-400 mb-2">Pattern</label>
+          <select v-model="pattern" class="w-full px-3 py-2 bg-cream border border-sand-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-terracotta-400 focus:border-transparent">
             <option value="solid">Solid</option>
             <option value="striped">Striped</option>
             <option value="plaid">Plaid</option>
@@ -80,12 +83,12 @@ async function submit() {
           </select>
         </div>
         <div class="col-span-2">
-          <label class="block text-sm font-medium mb-1">Colors (comma separated)</label>
-          <input v-model="colors" class="w-full px-3 py-2 border rounded-lg" placeholder="navy blue, white" />
+          <label class="block text-xs tracking-wider uppercase text-charcoal-400 mb-2">Colors (comma separated)</label>
+          <input v-model="colors" class="w-full px-3 py-2 bg-cream border border-sand-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-terracotta-400 focus:border-transparent" placeholder="navy blue, white" />
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Formality</label>
-          <select v-model="formality" class="w-full px-3 py-2 border rounded-lg">
+          <label class="block text-xs tracking-wider uppercase text-charcoal-400 mb-2">Formality</label>
+          <select v-model="formality" class="w-full px-3 py-2 bg-cream border border-sand-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-terracotta-400 focus:border-transparent">
             <option value="casual">Casual</option>
             <option value="smart_casual">Smart Casual</option>
             <option value="business_casual">Business Casual</option>
@@ -93,16 +96,16 @@ async function submit() {
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Material</label>
-          <input v-model="material" class="w-full px-3 py-2 border rounded-lg" />
+          <label class="block text-xs tracking-wider uppercase text-charcoal-400 mb-2">Material</label>
+          <input v-model="material" class="w-full px-3 py-2 bg-cream border border-sand-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-terracotta-400 focus:border-transparent" />
         </div>
       </div>
 
-      <div class="mt-6 flex gap-4">
-        <button :disabled="loading" class="flex-1 bg-blue-600 text-white py-2 rounded-lg disabled:opacity-50">
+      <div class="mt-8 flex gap-4">
+        <button :disabled="loading" class="flex-1 bg-terracotta-500 hover:bg-terracotta-600 text-white py-2.5 rounded-lg disabled:opacity-50">
           {{ loading ? 'Adding...' : 'Add to Wardrobe' }}
         </button>
-        <button type="button" @click="router.back()" class="px-6 py-2 border rounded-lg">Cancel</button>
+        <button type="button" @click="router.back()" class="px-6 py-2.5 border border-sand-300 hover:border-espresso-600 rounded-lg text-espresso-800">Cancel</button>
       </div>
     </form>
   </div>
