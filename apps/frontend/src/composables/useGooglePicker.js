@@ -6,7 +6,7 @@ const SCOPE = 'https://www.googleapis.com/auth/drive.readonly'
 
 let gisLoaded = false
 let gapiLoaded = false
-let gapiInitialized = false
+let pickerLoaded = false
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {
@@ -32,9 +32,9 @@ async function ensureScripts() {
     await loadScript('https://apis.google.com/js/api.js')
     gapiLoaded = true
   }
-  if (!gapiInitialized) {
+  if (!pickerLoaded) {
     await new Promise((resolve) => window.gapi.load('picker', resolve))
-    gapiInitialized = true
+    pickerLoaded = true
   }
 }
 
@@ -51,17 +51,18 @@ function getAccessToken() {
         }
       },
     })
-    client.requestAccessToken()
+    client.requestAccessToken({ prompt: 'consent' })
   })
 }
 
 function showPicker(accessToken) {
   return new Promise((resolve) => {
-    const view = new window.google.picker.PickerBuilder()
+    const picker = new window.google.picker.PickerBuilder()
       .addView(
         new window.google.picker.DocsView(window.google.picker.ViewId.DOCS)
           .setMimeTypes('image/png,image/jpeg,image/gif,image/webp')
-          .setIncludeFolders(false)
+          .setIncludeFolders(true)
+          .setSelectFolderEnabled(false)
       )
       .setOAuthToken(accessToken)
       .setDeveloperKey(API_KEY)
@@ -71,22 +72,20 @@ function showPicker(accessToken) {
         if (data.action === window.google.picker.Action.PICKED) {
           const photos = data.docs.map((doc) => ({
             id: doc.id,
-            name: doc.name,
+            name: doc.name || `photo_${doc.id}.jpg`,
             url: doc.thumbnails?.[doc.thumbnails.length - 1]?.url || doc.url,
           }))
           resolve(photos)
-        } else if (
-          data.action === window.google.picker.Action.CANCEL
-        ) {
+        } else if (data.action === window.google.picker.Action.CANCEL) {
           resolve(null)
         }
       })
       .build()
-    view.setVisible(true)
+    picker.setVisible(true)
   })
 }
 
-export function useGooglePicker() {
+export function useGooglePhotos() {
   const loading = ref(false)
   const error = ref(null)
   const googleConfigured = computed(() => !!(API_KEY && CLIENT_ID))

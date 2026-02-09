@@ -18,6 +18,7 @@ setup:
 	pnpm install
 	cd apps/backend && uv sync
 	cd apps/backend && cp -n .env.example .env || true
+	cd apps/frontend && cp -n .env.example .env || true
 	docker compose up -d
 	@sleep 2
 	cd apps/backend && uv run python manage.py migrate

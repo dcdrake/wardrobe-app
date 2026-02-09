@@ -93,11 +93,13 @@ class ClothingItemViewSet(viewsets.ModelViewSet):
         response['X-Accel-Buffering'] = 'no'
         return response
 
-    def _download_google_photo(self, file_id, filename, access_token):
+    def _download_google_photo(self, photo, access_token):
+        file_id = photo['id']
         url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
         with httpx.Client(timeout=30) as client:
             resp = client.get(url, headers={"Authorization": f"Bearer {access_token}"})
             resp.raise_for_status()
+        filename = photo.get('name', 'photo.jpg')
         ext = filename.rsplit('.', 1)[-1] if '.' in filename else 'jpg'
         content_type = resp.headers.get("content-type", f"image/{ext}")
         return SimpleUploadedFile(filename, resp.content, content_type=content_type)
@@ -123,9 +125,7 @@ class ClothingItemViewSet(viewsets.ModelViewSet):
             count = 0
             for index, photo in enumerate(photos):
                 try:
-                    file_id = photo['id']
-                    filename = photo.get('name', f'photo_{index}.jpg')
-                    downloaded = self._download_google_photo(file_id, filename, access_token)
+                    downloaded = self._download_google_photo(photo, access_token)
                     compressed = compress_image(downloaded)
                     item = ClothingItem.objects.create(user=user, image=compressed)
                     self._run_ai_analysis(item)
