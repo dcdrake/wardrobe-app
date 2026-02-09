@@ -42,6 +42,7 @@ CATEGORIES:
 - Shoes: sneakers, boots, dress_shoes, loafers, sandals, heels, flats
 - Outerwear: jacket, blazer, coat, vest, cardigan
 - Full body (replaces top+bottom): dress, jumpsuit, romper, suit
+- Accessories: belt, watch, tie, bow_tie, hat, scarf, sunglasses, necklace, bracelet, earrings, ring, bag, backpack, pocket_square, cufflinks, gloves
 
 RULES:
 - Every outfit MUST include at least one top, one bottom, and one pair of shoes (or a full body item plus shoes).
