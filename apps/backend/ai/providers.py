@@ -32,28 +32,47 @@ class AIProvider(ABC):
 }
 Only respond with JSON."""
 
+    @staticmethod
+    def _build_wardrobe_labels(wardrobe: list[dict]) -> list[str]:
+        """Build unique labels like 'dark green shirt' for each wardrobe item."""
+        labels = []
+        seen = {}
+        for i in wardrobe:
+            color = (i.get('colors') or [''])[0].lower()
+            item_type = (i.get('item_type') or 'item').replace('_', ' ')
+            label = f"{color} {item_type}".strip()
+            # Deduplicate by appending formality
+            if label in seen:
+                seen[label] += 1
+                label = f"{label} ({i.get('formality', 'casual')})"
+            else:
+                seen[label] = 1
+            labels.append(label)
+        return labels
+
     def _get_outfit_prompt(self, wardrobe: list[dict], occasion: str) -> str:
-        items = json.dumps([{'type': i['item_type'], 'colors': i['colors'], 'formality': i['formality']} for i in wardrobe], indent=2)
+        labels = self._build_wardrobe_labels(wardrobe)
+        items_list = '\n'.join(f'- "{label}"' for label in labels)
         return f"""You are a menswear stylist with over 10 years of experience. Suggest 2-3 outfits for: "{occasion}"
 
 CATEGORIES:
-- Tops: tshirt, shirt, polo, sweater, hoodie, tank_top, blouse, crop_top
+- Tops: tshirt, shirt, polo, sweater, hoodie, tank top, blouse, crop top
 - Bottoms: jeans, chinos, trousers, shorts, skirt, leggings
-- Shoes: sneakers, boots, dress_shoes, loafers, sandals, heels, flats
+- Shoes: sneakers, boots, dress shoes, loafers, sandals, heels, flats
 - Outerwear: jacket, blazer, coat, vest, cardigan
 - Full body (replaces top+bottom): dress, jumpsuit, romper, suit
-- Accessories: belt, watch, tie, bow_tie, hat, scarf, sunglasses, necklace, bracelet, earrings, ring, bag, backpack, pocket_square, cufflinks, gloves
+- Accessories: belt, watch, tie, bow tie, hat, scarf, sunglasses, necklace, bracelet, earrings, ring, bag, backpack, pocket square, cufflinks, gloves
 
 RULES:
 - Every outfit MUST include at least one top, one bottom, and one pair of shoes (or a full body item plus shoes).
 - Always include a belt when the outfit has pants (jeans, chinos, trousers).
-- Only pick items that exist in the wardrobe below.
+- You MUST only use items from the list below. Do NOT invent items.
 
 WARDROBE:
-{items}
+{items_list}
 
-Respond in JSON. For each item, specify its type and primary color exactly as they appear in the wardrobe. Write the explanation in a natural, conversational tone as if advising a client:
-{{"suggestions": [{{"items": [{{"type": "shirt", "color": "dark green"}}, {{"type": "chinos", "color": "brown"}}, {{"type": "boots", "color": "brown"}}, {{"type": "belt", "color": "gray"}}], "explanation": "This outfit pairs a crisp shirt with tailored chinos and leather boots for a polished but relaxed look. The belt ties it all together."}}]}}
+Respond in JSON. Each item string must be copied exactly from the wardrobe list above. Write the explanation in a natural, conversational tone as if advising a client:
+{{"suggestions": [{{"items": ["dark green shirt", "brown chinos", "brown boots", "gray belt"], "explanation": "This outfit pairs a crisp shirt with tailored chinos and leather boots for a polished but relaxed look. The belt ties it all together."}}]}}
 Only respond with JSON."""
 
     def _parse_json(self, text: str) -> dict:
@@ -73,8 +92,8 @@ class PlaceholderProvider(AIProvider):
         return {'item_type': 'other', 'colors': ['unknown'], 'pattern': 'solid', 'material': '', 'formality': 'casual'}
 
     def suggest_outfits(self, wardrobe: list[dict], occasion: str) -> list[dict]:
-        items = [{'type': i['item_type'], 'color': (i.get('colors') or ['unknown'])[0]} for i in wardrobe[:3]]
-        return [{'items': items, 'explanation': f'Placeholder for "{occasion}"'}]
+        labels = self._build_wardrobe_labels(wardrobe)[:3]
+        return [{'items': labels, 'explanation': f'Placeholder for "{occasion}"'}]
 
 
 class OllamaProvider(AIProvider):

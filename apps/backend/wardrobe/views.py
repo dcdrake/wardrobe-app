@@ -157,38 +157,38 @@ class OutfitSuggestionViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def _match_items_to_ids(suggestions, wardrobe_data):
-        """Match AI-described items to real wardrobe items by type and color."""
+        """Match AI-returned labels to real wardrobe items."""
+        from ai.providers import AIProvider
+        labels = AIProvider._build_wardrobe_labels(wardrobe_data)
+        label_to_id = {}
+        for label, w in zip(labels, wardrobe_data):
+            label_to_id[label] = str(w['id'])
+
         for s in suggestions:
             described_items = s.pop('items', [])
             matched_ids = []
             used = set()
-            for desc in described_items:
-                best_match = None
-                best_score = -1
-                for w in wardrobe_data:
-                    wid = str(w['id'])
+            for item_label in described_items:
+                label = item_label.strip().lower()
+                # Exact match
+                match_id = None
+                for known_label, wid in label_to_id.items():
                     if wid in used:
                         continue
-                    if w.get('item_type', '') != desc.get('type', ''):
-                        continue
-                    # Score by color overlap
-                    desc_color = desc.get('color', '').lower()
-                    w_colors = [c.lower() for c in (w.get('colors') or [])]
-                    score = 0
-                    for wc in w_colors:
-                        if desc_color == wc:
-                            score = 3
+                    if label == known_label:
+                        match_id = wid
+                        break
+                # Fuzzy fallback: find best substring match
+                if not match_id:
+                    for known_label, wid in label_to_id.items():
+                        if wid in used:
+                            continue
+                        if label in known_label or known_label in label:
+                            match_id = wid
                             break
-                        elif desc_color in wc or wc in desc_color:
-                            score = max(score, 2)
-                        elif any(word in wc for word in desc_color.split()):
-                            score = max(score, 1)
-                    if score > best_score:
-                        best_score = score
-                        best_match = wid
-                if best_match:
-                    matched_ids.append(best_match)
-                    used.add(best_match)
+                if match_id:
+                    matched_ids.append(match_id)
+                    used.add(match_id)
             s['item_ids'] = matched_ids
         return suggestions
 
