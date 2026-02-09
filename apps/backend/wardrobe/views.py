@@ -155,6 +155,18 @@ class OutfitSuggestionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return OutfitSuggestion.objects.filter(user=self.request.user)
 
+    @staticmethod
+    def _map_indexes_to_ids(suggestions, wardrobe_data):
+        """Replace item_indexes with item_ids using the wardrobe list order."""
+        for s in suggestions:
+            indexes = s.pop('item_indexes', [])
+            s['item_ids'] = [
+                str(wardrobe_data[idx]['id'])
+                for idx in indexes
+                if isinstance(idx, int) and 0 <= idx < len(wardrobe_data)
+            ]
+        return suggestions
+
     @action(detail=False, methods=['post'])
     def suggest(self, request):
         serializer = OutfitRequestSerializer(data=request.data)
@@ -173,6 +185,7 @@ class OutfitSuggestionViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+        suggestions = self._map_indexes_to_ids(suggestions, wardrobe_data)
         outfit = OutfitSuggestion.objects.create(user=request.user, occasion=occasion, suggestions=suggestions)
         return Response({'id': outfit.id, 'occasion': occasion, 'suggestions': suggestions})
 
@@ -200,6 +213,7 @@ class OutfitSuggestionViewSet(viewsets.ModelViewSet):
 
                 parsed = provider._parse_json(full_text)
                 suggestions = parsed.get('suggestions', [])
+                suggestions = self._map_indexes_to_ids(suggestions, wardrobe_data)
                 outfit = OutfitSuggestion.objects.create(
                     user=user, occasion=occasion, suggestions=suggestions
                 )

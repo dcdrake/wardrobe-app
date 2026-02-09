@@ -24,7 +24,7 @@ class AIProvider(ABC):
     def _get_analysis_prompt(self) -> str:
         return """Analyze this clothing item. Respond in JSON:
 {
-  "item_type": "tshirt|shirt|polo|sweater|hoodie|jacket|blazer|coat|jeans|chinos|trousers|shorts|sneakers|boots|dress_shoes|loafers|sandals|belt|watch|tie|hat|scarf|other",
+  "item_type": "tshirt|shirt|polo|sweater|hoodie|tank_top|blouse|crop_top|jacket|blazer|coat|vest|cardigan|jeans|chinos|trousers|shorts|skirt|leggings|dress|jumpsuit|romper|suit|sneakers|boots|dress_shoes|loafers|sandals|heels|flats|belt|watch|tie|bow_tie|hat|scarf|sunglasses|necklace|bracelet|earrings|ring|bag|backpack|pocket_square|cufflinks|gloves|other",
   "colors": ["specific colors with shades"],
   "pattern": "solid|striped|plaid|checkered|floral|geometric|print|other",
   "material": "cotton|wool|linen|denim|leather|polyester|silk|etc",
@@ -33,23 +33,33 @@ class AIProvider(ABC):
 Only respond with JSON."""
 
     def _get_outfit_prompt(self, wardrobe: list[dict], occasion: str) -> str:
-        items = json.dumps([{'id': i['id'], 'type': i['item_type'], 'colors': i['colors'], 'formality': i['formality']} for i in wardrobe], indent=2)
+        items = json.dumps([{'index': idx, 'type': i['item_type'], 'colors': i['colors'], 'formality': i['formality']} for idx, i in enumerate(wardrobe)], indent=2)
         return f"""Suggest 2-3 outfits for: "{occasion}"
 
+CATEGORIES:
+- Tops: tshirt, shirt, polo, sweater, hoodie, tank_top, blouse, crop_top
+- Bottoms: jeans, chinos, trousers, shorts, skirt, leggings
+- Shoes: sneakers, boots, dress_shoes, loafers, sandals, heels, flats
+- Outerwear: jacket, blazer, coat, vest, cardigan
+- Full body (replaces top+bottom): dress, jumpsuit, romper, suit
+
 RULES:
-- Every outfit MUST include at least a top, a bottom, and shoes.
-- Include at least one minimal outfit (top + bottom + shoes only) and one with additional accessories (e.g. belt, watch, scarf, hat).
-- Only use item IDs from the wardrobe below.
+- Every outfit MUST include at least one top, one bottom, and one pair of shoes (or a full body item plus shoes).
+- Always include a belt when the outfit has pants (jeans, chinos, trousers).
+- Only use item index numbers from the wardrobe below.
 
 WARDROBE:
 {items}
 
 Respond in JSON:
-{{"suggestions": [{{"item_ids": ["id1", "id2", "id3"], "explanation": "Why this works"}}]}}
+{{"suggestions": [{{"item_indexes": [0, 3, 5], "explanation": "Why this works"}}]}}
 Only respond with JSON."""
 
     def _parse_json(self, text: str) -> dict:
         text = text.strip()
+        # Strip <think>...</think> blocks from reasoning models
+        import re
+        text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()
         if '```json' in text:
             text = text.split('```json')[1].split('```')[0]
         elif '```' in text:
@@ -62,7 +72,7 @@ class PlaceholderProvider(AIProvider):
         return {'item_type': 'other', 'colors': ['unknown'], 'pattern': 'solid', 'material': '', 'formality': 'casual'}
 
     def suggest_outfits(self, wardrobe: list[dict], occasion: str) -> list[dict]:
-        return [{'item_ids': [i['id'] for i in wardrobe[:3]], 'explanation': f'Placeholder for "{occasion}"'}]
+        return [{'item_indexes': list(range(min(3, len(wardrobe)))), 'explanation': f'Placeholder for "{occasion}"'}]
 
 
 class OllamaProvider(AIProvider):
