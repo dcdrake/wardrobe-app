@@ -52,8 +52,8 @@ RULES:
 WARDROBE:
 {items}
 
-Respond in JSON. Write the explanation in a natural, conversational tone as if you're advising a client — not a list of items, but why the outfit works together and how to pull it off:
-{{"suggestions": [{{"item_indexes": [0, 3, 5], "explanation": "Natural styling advice here"}}]}}
+Respond in JSON. The item_indexes array MUST include every item mentioned. NEVER mention index numbers in the explanation — write it in a natural, conversational tone as if advising a client about why the outfit works together:
+{{"suggestions": [{{"item_indexes": [0, 3, 5, 7], "explanation": "This outfit pairs a crisp shirt with tailored chinos and leather boots for a polished but relaxed look. The belt ties it all together."}}]}}
 Only respond with JSON."""
 
     def _parse_json(self, text: str) -> dict:
