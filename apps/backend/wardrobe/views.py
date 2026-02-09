@@ -156,15 +156,40 @@ class OutfitSuggestionViewSet(viewsets.ModelViewSet):
         return OutfitSuggestion.objects.filter(user=self.request.user)
 
     @staticmethod
-    def _map_indexes_to_ids(suggestions, wardrobe_data):
-        """Replace item_indexes with item_ids using the wardrobe list order."""
+    def _match_items_to_ids(suggestions, wardrobe_data):
+        """Match AI-described items to real wardrobe items by type and color."""
         for s in suggestions:
-            indexes = s.pop('item_indexes', [])
-            s['item_ids'] = [
-                str(wardrobe_data[idx]['id'])
-                for idx in indexes
-                if isinstance(idx, int) and 0 <= idx < len(wardrobe_data)
-            ]
+            described_items = s.pop('items', [])
+            matched_ids = []
+            used = set()
+            for desc in described_items:
+                best_match = None
+                best_score = -1
+                for w in wardrobe_data:
+                    wid = str(w['id'])
+                    if wid in used:
+                        continue
+                    if w.get('item_type', '') != desc.get('type', ''):
+                        continue
+                    # Score by color overlap
+                    desc_color = desc.get('color', '').lower()
+                    w_colors = [c.lower() for c in (w.get('colors') or [])]
+                    score = 0
+                    for wc in w_colors:
+                        if desc_color == wc:
+                            score = 3
+                            break
+                        elif desc_color in wc or wc in desc_color:
+                            score = max(score, 2)
+                        elif any(word in wc for word in desc_color.split()):
+                            score = max(score, 1)
+                    if score > best_score:
+                        best_score = score
+                        best_match = wid
+                if best_match:
+                    matched_ids.append(best_match)
+                    used.add(best_match)
+            s['item_ids'] = matched_ids
         return suggestions
 
     @action(detail=False, methods=['post'])
@@ -185,7 +210,7 @@ class OutfitSuggestionViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        suggestions = self._map_indexes_to_ids(suggestions, wardrobe_data)
+        suggestions = self._match_items_to_ids(suggestions, wardrobe_data)
         outfit = OutfitSuggestion.objects.create(user=request.user, occasion=occasion, suggestions=suggestions)
         return Response({'id': outfit.id, 'occasion': occasion, 'suggestions': suggestions})
 
@@ -213,7 +238,7 @@ class OutfitSuggestionViewSet(viewsets.ModelViewSet):
 
                 parsed = provider._parse_json(full_text)
                 suggestions = parsed.get('suggestions', [])
-                suggestions = self._map_indexes_to_ids(suggestions, wardrobe_data)
+                suggestions = self._match_items_to_ids(suggestions, wardrobe_data)
                 outfit = OutfitSuggestion.objects.create(
                     user=user, occasion=occasion, suggestions=suggestions
                 )

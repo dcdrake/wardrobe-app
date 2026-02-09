@@ -33,7 +33,7 @@ class AIProvider(ABC):
 Only respond with JSON."""
 
     def _get_outfit_prompt(self, wardrobe: list[dict], occasion: str) -> str:
-        items = json.dumps([{'index': idx, 'type': i['item_type'], 'colors': i['colors'], 'formality': i['formality']} for idx, i in enumerate(wardrobe)], indent=2)
+        items = json.dumps([{'type': i['item_type'], 'colors': i['colors'], 'formality': i['formality']} for i in wardrobe], indent=2)
         return f"""You are a menswear stylist with over 10 years of experience. Suggest 2-3 outfits for: "{occasion}"
 
 CATEGORIES:
@@ -47,13 +47,13 @@ CATEGORIES:
 RULES:
 - Every outfit MUST include at least one top, one bottom, and one pair of shoes (or a full body item plus shoes).
 - Always include a belt when the outfit has pants (jeans, chinos, trousers).
-- Only use item index numbers from the wardrobe below.
+- Only pick items that exist in the wardrobe below.
 
 WARDROBE:
 {items}
 
-Respond in JSON. The item_indexes array MUST include every item mentioned. NEVER mention index numbers in the explanation — write it in a natural, conversational tone as if advising a client about why the outfit works together:
-{{"suggestions": [{{"item_indexes": [0, 3, 5, 7], "explanation": "This outfit pairs a crisp shirt with tailored chinos and leather boots for a polished but relaxed look. The belt ties it all together."}}]}}
+Respond in JSON. For each item, specify its type and primary color exactly as they appear in the wardrobe. Write the explanation in a natural, conversational tone as if advising a client:
+{{"suggestions": [{{"items": [{{"type": "shirt", "color": "dark green"}}, {{"type": "chinos", "color": "brown"}}, {{"type": "boots", "color": "brown"}}, {{"type": "belt", "color": "gray"}}], "explanation": "This outfit pairs a crisp shirt with tailored chinos and leather boots for a polished but relaxed look. The belt ties it all together."}}]}}
 Only respond with JSON."""
 
     def _parse_json(self, text: str) -> dict:
@@ -73,7 +73,8 @@ class PlaceholderProvider(AIProvider):
         return {'item_type': 'other', 'colors': ['unknown'], 'pattern': 'solid', 'material': '', 'formality': 'casual'}
 
     def suggest_outfits(self, wardrobe: list[dict], occasion: str) -> list[dict]:
-        return [{'item_indexes': list(range(min(3, len(wardrobe)))), 'explanation': f'Placeholder for "{occasion}"'}]
+        items = [{'type': i['item_type'], 'color': (i.get('colors') or ['unknown'])[0]} for i in wardrobe[:3]]
+        return [{'items': items, 'explanation': f'Placeholder for "{occasion}"'}]
 
 
 class OllamaProvider(AIProvider):
