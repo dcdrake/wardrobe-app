@@ -61,12 +61,11 @@ const getItem = (id) => store.getItemById(id)
       <p v-if="error" class="mt-4 text-red-600">{{ error }}</p>
     </div>
 
-    <div v-if="streaming && streamingText" class="bg-white p-6 rounded-lg shadow-sm mb-6">
-      <div class="flex items-center gap-2 mb-3">
+    <div v-if="streaming" class="bg-white p-6 rounded-lg shadow-sm mb-6">
+      <div class="flex items-center gap-2">
         <span class="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-        <span class="text-sm text-gray-500">Generating suggestions...</span>
+        <span class="text-sm text-gray-500">Putting together some outfits...</span>
       </div>
-      <pre class="whitespace-pre-wrap text-sm text-gray-700 font-mono">{{ streamingText }}</pre>
     </div>
 
     <div v-if="suggestions" class="space-y-6">
