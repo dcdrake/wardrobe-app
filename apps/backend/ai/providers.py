@@ -34,7 +34,7 @@ Only respond with JSON."""
 
     def _get_outfit_prompt(self, wardrobe: list[dict], occasion: str) -> str:
         items = json.dumps([{'index': idx, 'type': i['item_type'], 'colors': i['colors'], 'formality': i['formality']} for idx, i in enumerate(wardrobe)], indent=2)
-        return f"""Suggest 2-3 outfits for: "{occasion}"
+        return f"""You are a menswear stylist with over 10 years of experience. Suggest 2-3 outfits for: "{occasion}"
 
 CATEGORIES:
 - Tops: tshirt, shirt, polo, sweater, hoodie, tank_top, blouse, crop_top
@@ -52,8 +52,8 @@ RULES:
 WARDROBE:
 {items}
 
-Respond in JSON:
-{{"suggestions": [{{"item_indexes": [0, 3, 5], "explanation": "Why this works"}}]}}
+Respond in JSON. Write the explanation in a natural, conversational tone as if you're advising a client — not a list of items, but why the outfit works together and how to pull it off:
+{{"suggestions": [{{"item_indexes": [0, 3, 5], "explanation": "Natural styling advice here"}}]}}
 Only respond with JSON."""
 
     def _parse_json(self, text: str) -> dict:
