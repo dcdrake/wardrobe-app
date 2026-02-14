@@ -94,7 +94,7 @@ export default function OutfitsPage() {
 
       {suggestions && (
         <div className="space-y-6">
-          <h2 className="text-xl font-serif font-semibold text-espresso-800">Suggestions for &ldquo;{suggestions.occasion}&rdquo;</h2>
+          <h2 className="text-xl font-serif font-semibold text-espresso-800">Suggestions for "{suggestions.occasion}"</h2>
           {suggestions.suggestions.map((s, i) => (
             <div key={i} className="bg-cream p-6 rounded-xl border border-sand-200/60">
               <h3 className="text-xs tracking-wider uppercase text-charcoal-400 mb-4">Option {i + 1}</h3>
