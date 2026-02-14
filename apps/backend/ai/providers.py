@@ -53,7 +53,7 @@ Only respond with JSON."""
     def _get_outfit_prompt(self, wardrobe: list[dict], occasion: str) -> str:
         labels = self._build_wardrobe_labels(wardrobe)
         items_list = '\n'.join(f'- "{label}"' for label in labels)
-        return f"""You are a menswear stylist with over 10 years of experience. Suggest 2-3 outfits for: "{occasion}"
+        return f"""You are a personal stylist with over 10 years of experience. Suggest 2-3 outfits for: "{occasion}"
 
 CATEGORIES:
 - Tops: tshirt, shirt, polo, sweater, hoodie, tank top, blouse, crop top

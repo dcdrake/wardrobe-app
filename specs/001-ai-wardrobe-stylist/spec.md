@@ -13,6 +13,7 @@
 - Q: When the AI provider is unreachable, what should happen to photo uploads? → A: Accept upload, save photo, queue analysis — user can manually set attributes now, AI fills them in later.
 - Q: How should the system handle duplicate clothing uploads? → A: Allow duplicates — no detection; users manage their own wardrobe.
 - Q: Are outfit suggestions preserved if the user navigates away and comes back? → A: Preserved for the current session — results survive navigation but not logout/refresh.
+- Q: Which AI providers should the system support? → A: Ollama (local inference), Claude (Anthropic API), and HuggingFace models. All behind a common provider interface, selectable via environment variable.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -112,6 +113,13 @@ A user creates an account so their wardrobe and preferences are private and pers
 - **FR-014**: Each user's wardrobe data MUST be private and inaccessible to other users.
 - **FR-015**: The system MUST handle AI analysis failures gracefully — never show raw error output to the user.
 - **FR-016**: When the AI provider is unreachable, the system MUST still accept photo uploads — saving the photo and allowing the user to set attributes manually. AI analysis MUST be queued and completed automatically when the provider becomes available again.
+- **FR-017**: The system MUST support multiple AI providers behind a common interface. The active provider is selected via environment configuration (`AI_PROVIDER`). Supported providers MUST include:
+  - **Ollama** — local inference using self-hosted models (e.g., Qwen, LLaMA). Supports both vision (clothing analysis) and text (outfit suggestion) models.
+  - **Claude** (Anthropic API) — cloud-based inference using Claude models. Supports vision (clothing analysis via image input) and text (outfit suggestion).
+  - **HuggingFace** — cloud-based inference using Hugging Face Inference API or locally hosted models via the HuggingFace Hub. Supports configurable model selection for both vision and text tasks.
+- **FR-018**: Adding a new AI provider MUST NOT require changes to the API layer, views, or frontend — only a new provider class implementing the existing abstract interface and a new environment variable value.
+- **FR-019**: Each provider MUST support both streaming and non-streaming outfit suggestion modes. If a provider does not natively support streaming, it MUST fall back to returning the full response as a single chunk.
+- **FR-020**: Provider-specific configuration (API keys, model names, base URLs) MUST be loaded from environment variables, not hardcoded.
 
 ### Key Entities
 
@@ -129,6 +137,7 @@ A user creates an account so their wardrobe and preferences are private and pers
 - The defined item type taxonomy covers: tops, bottoms, shoes, outerwear, full-body garments, and accessories.
 - Cultural awareness in outfit suggestions relies on the AI model's training data and the context provided in the occasion description — the system does not maintain its own cultural dress code database.
 - The system is gender-neutral. AI prompts and item taxonomy MUST NOT assume the user's gender; outfit logic is driven entirely by the items in the wardrobe.
+- The AI provider is configurable at deploy time via environment variable. Each provider implements the same abstract interface (clothing analysis + outfit suggestion) so the frontend and API layer are provider-agnostic.
 
 ## Success Criteria *(mandatory)*
 
