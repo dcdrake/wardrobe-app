@@ -5,13 +5,15 @@ from .models import ClothingItem, OutfitSuggestion
 class ClothingItemSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
     item_type_display = serializers.CharField(source='get_item_type_display', read_only=True)
+    category_display = serializers.CharField(source='get_category_display', read_only=True)
     pattern_display = serializers.CharField(source='get_pattern_display', read_only=True)
     formality_display = serializers.CharField(source='get_formality_display', read_only=True)
-    
+
     class Meta:
         model = ClothingItem
         fields = [
             'id', 'image', 'image_url', 'item_type', 'item_type_display',
+            'category', 'category_display', 'description',
             'colors', 'pattern', 'pattern_display', 'material',
             'formality', 'formality_display', 'brand', 'notes',
             'created_at', 'updated_at'
@@ -28,7 +30,7 @@ class ClothingItemSerializer(serializers.ModelSerializer):
 class ClothingItemCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClothingItem
-        fields = ['image', 'item_type', 'colors', 'pattern', 'material', 'formality', 'brand', 'notes']
+        fields = ['image', 'item_type', 'category', 'description', 'colors', 'pattern', 'material', 'formality', 'brand', 'notes']
     
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
@@ -38,7 +40,7 @@ class ClothingItemCreateSerializer(serializers.ModelSerializer):
 class ClothingItemUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClothingItem
-        fields = ['item_type', 'colors', 'pattern', 'material', 'formality', 'brand', 'notes']
+        fields = ['item_type', 'category', 'description', 'colors', 'pattern', 'material', 'formality', 'brand', 'notes']
 
 
 class OutfitRequestSerializer(serializers.Serializer):

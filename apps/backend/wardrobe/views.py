@@ -57,6 +57,17 @@ class ClothingItemViewSet(viewsets.ModelViewSet):
             if item.formality == ClothingItem.Formality.CASUAL:
                 item.formality = analysis.get('formality', ClothingItem.Formality.CASUAL)
 
+            # Save category — validate against choices, fall back to mapping
+            ai_category = analysis.get('category', '')
+            valid_categories = {c.value for c in ClothingItem.Category}
+            if ai_category in valid_categories:
+                item.category = ai_category
+            else:
+                item.category = ClothingItem.ITEM_TYPE_TO_CATEGORY.get(item.item_type, '')
+
+            if not item.description:
+                item.description = analysis.get('description', '')
+
             item.ai_analysis = analysis
             item.save()
         except Exception as e:
@@ -156,6 +167,16 @@ class OutfitSuggestionViewSet(viewsets.ModelViewSet):
         return OutfitSuggestion.objects.filter(user=self.request.user)
 
     @staticmethod
+    def _enrich_wardrobe_data(wardrobe_data):
+        """Fill in category from ITEM_TYPE_TO_CATEGORY for items missing it."""
+        for item in wardrobe_data:
+            if not item.get('category'):
+                item['category'] = ClothingItem.ITEM_TYPE_TO_CATEGORY.get(
+                    item.get('item_type', ''), ''
+                )
+        return wardrobe_data
+
+    @staticmethod
     def _match_items_to_ids(suggestions, wardrobe_data):
         """Match AI-returned labels to real wardrobe items."""
         from ai.providers import AIProvider
@@ -178,7 +199,7 @@ class OutfitSuggestionViewSet(viewsets.ModelViewSet):
                     if label == known_label:
                         match_id = wid
                         break
-                # Fuzzy fallback: find best substring match
+                # Substring match
                 if not match_id:
                     for known_label, wid in label_to_id.items():
                         if wid in used:
@@ -186,6 +207,20 @@ class OutfitSuggestionViewSet(viewsets.ModelViewSet):
                         if label in known_label or known_label in label:
                             match_id = wid
                             break
+                # Token-overlap fallback
+                if not match_id:
+                    label_tokens = set(label.split())
+                    best_score, best_id = 0, None
+                    for known_label, wid in label_to_id.items():
+                        if wid in used:
+                            continue
+                        known_tokens = set(known_label.split())
+                        overlap = len(label_tokens & known_tokens)
+                        if overlap > best_score:
+                            best_score = overlap
+                            best_id = wid
+                    if best_score >= 2:
+                        match_id = best_id
                 if match_id:
                     matched_ids.append(match_id)
                     used.add(match_id)
@@ -200,6 +235,7 @@ class OutfitSuggestionViewSet(viewsets.ModelViewSet):
         occasion = serializer.validated_data['occasion']
         wardrobe = ClothingItem.objects.filter(user=request.user)
         wardrobe_data = ClothingItemSerializer(wardrobe, many=True, context={'request': request}).data
+        wardrobe_data = self._enrich_wardrobe_data(wardrobe_data)
 
         if not wardrobe_data:
             return Response({'error': 'No items in wardrobe'}, status=status.HTTP_400_BAD_REQUEST)
@@ -222,6 +258,7 @@ class OutfitSuggestionViewSet(viewsets.ModelViewSet):
         occasion = serializer.validated_data['occasion']
         wardrobe = ClothingItem.objects.filter(user=request.user)
         wardrobe_data = ClothingItemSerializer(wardrobe, many=True, context={'request': request}).data
+        wardrobe_data = self._enrich_wardrobe_data(wardrobe_data)
 
         if not wardrobe_data:
             return Response({'error': 'No items in wardrobe'}, status=status.HTTP_400_BAD_REQUEST)
