@@ -4,14 +4,14 @@ nixPkgs = ["python311", "nodejs_20"]
 [phases.install]
 cmds = [
     "cd apps/frontend && npm ci",
-    "cd apps/backend && pip install uv && uv sync --frozen",
+    "cd apps/backend && python3 -m pip install uv && python3 -m uv sync --frozen",
 ]
 
 [phases.build]
 cmds = [
     "cd apps/frontend && npm run build",
-    "cd apps/backend && python manage.py collectstatic --noinput",
+    "cd apps/backend && python3 manage.py collectstatic --noinput",
 ]
 
 [start]
-cmd = "cd apps/backend && python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --timeout 120"
+cmd = "cd apps/backend && python3 manage.py migrate --noinput && python3 -m gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --timeout 120"
