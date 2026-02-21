@@ -3,13 +3,13 @@ nixPkgs = ["python311", "nodejs_20"]
 
 [phases.install]
 cmds = [
-    "npm install -g pnpm@9 && cd apps/frontend && pnpm install --frozen-lockfile",
+    "cd apps/frontend && npm ci",
     "cd apps/backend && pip install uv && uv sync --frozen",
 ]
 
 [phases.build]
 cmds = [
-    "cd apps/frontend && npx pnpm build",
+    "cd apps/frontend && npm run build",
     "cd apps/backend && python manage.py collectstatic --noinput",
 ]
 
