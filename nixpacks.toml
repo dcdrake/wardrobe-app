@@ -3,13 +3,13 @@ nixPkgs = ["python311", "nodejs_20"]
 
 [phases.install]
 cmds = [
-    "cd apps/frontend && npm ci --include=dev",
+    "cd apps/frontend && NODE_ENV=development npm ci",
     "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=$HOME/.local/bin:$PATH && cd apps/backend && uv sync --frozen",
 ]
 
 [phases.build]
 cmds = [
-    "cd apps/frontend && npm ci --include=dev && npm run build",
+    "cd apps/frontend && NODE_ENV=development npm ci && npx vite build",
     "export PATH=$HOME/.local/bin:$PATH && cd apps/backend && uv run python manage.py collectstatic --noinput",
 ]
 
