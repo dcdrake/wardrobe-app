@@ -1,13 +1,14 @@
 # Stage 1: Build frontend
-FROM node:20-slim AS frontend
+FROM node:24-slim AS frontend
 WORKDIR /app/apps/frontend
 COPY apps/frontend/package.json apps/frontend/package-lock.json ./
+ENV NODE_ENV=development
 RUN npm ci
 COPY apps/frontend/ ./
 RUN npm run build
 
 # Stage 2: Python app + built frontend
-FROM python:3.11-slim
+FROM python:3.14-slim
 WORKDIR /app
 
 # Install uv
