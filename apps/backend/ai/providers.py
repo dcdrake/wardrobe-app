@@ -249,6 +249,7 @@ class HuggingFaceProvider(AIProvider):
     def __init__(self):
         from huggingface_hub import InferenceClient
         self.client = InferenceClient(
+            provider="hf-inference",
             api_key=settings.HUGGINGFACE_API_KEY,
             timeout=180,
         )
