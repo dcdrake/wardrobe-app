@@ -44,9 +44,23 @@ Only respond with JSON."""
             if desc:
                 label = desc.lower()
             else:
-                color = (i.get('colors') or [''])[0].lower()
+                # Build a rich label from available metadata
+                parts = []
+                colors = i.get('colors') or []
+                if colors:
+                    parts.append(colors[0].lower())
+                material = (i.get('material') or '').strip()
+                if material:
+                    parts.append(material.lower().replace('_', ' '))
+                pattern = (i.get('pattern') or '').strip()
+                if pattern and pattern != 'solid':
+                    parts.append(pattern.lower().replace('_', ' '))
                 item_type = (i.get('item_type') or 'item').replace('_', ' ')
-                label = f"{color} {item_type}".strip()
+                parts.append(item_type)
+                formality = (i.get('formality') or '').strip()
+                if formality and formality != 'casual':
+                    parts.append(f"({formality.replace('_', ' ')})")
+                label = ' '.join(parts)
             # Deduplicate by appending formality
             if label in seen:
                 seen[label] += 1
