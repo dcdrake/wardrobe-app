@@ -78,7 +78,7 @@ PostgreSQL (backend) / Ollama for local AI inference.
 - Backend authentication uses SimpleJWT; CORS handled by
   django-cors-headers.
 - Images are processed server-side (Pillow) and stored in `media/`.
-- Python version: 3.11+. Node managed via pnpm.
+- Python version: 3.11+. Node managed via npm.
 - Linting: Ruff (backend), ESLint (frontend).
 - Testing is encouraged but optional; when tests exist they MUST pass
   before merge.

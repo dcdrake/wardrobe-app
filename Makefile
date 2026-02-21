@@ -15,7 +15,7 @@ help:
 	@echo "  make migrate   - Run Django migrations"
 
 setup:
-	pnpm install
+	npm install
 	cd apps/backend && uv sync
 	cd apps/backend && cp -n .env.example .env || true
 	cd apps/frontend && cp -n .env.example .env || true
@@ -25,20 +25,20 @@ setup:
 	@echo "✅ Setup complete! Run 'make dev' to start."
 
 install:
-	pnpm install
+	npm install
 	cd apps/backend && uv sync
 
 dev:
-	pnpm dev
+	npm run dev
 
 build:
-	pnpm build
+	npm run build
 
 test:
 	cd apps/backend && uv run pytest
 
 lint:
-	cd apps/frontend && pnpm lint
+	cd apps/frontend && npm run lint
 
 db-up:
 	docker compose up -d

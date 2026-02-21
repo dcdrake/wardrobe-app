@@ -8,19 +8,15 @@ A web app to catalog your wardrobe and get AI-powered outfit suggestions.
 wardrobe-app/
 ├── apps/
 │   ├── backend/     # Django REST API
-│   └── frontend/    # Vue 3 + Vite
+│   └── frontend/    # React 18 + Vite
 ├── packages/        # Shared packages (future)
 ├── docker-compose.yml
-├── Makefile
-└── pnpm-workspace.yaml
+└── Makefile
 ```
 
 ## Quick Start
 
 ```bash
-# Install pnpm if you don't have it
-npm install -g pnpm
-
 # Setup everything (installs deps, starts db, runs migrations)
 make setup
 
@@ -47,16 +43,19 @@ This starts:
 ## Tech Stack
 
 - **Backend**: Django 5, Django REST Framework, PostgreSQL
-- **Frontend**: Vue 3, Vite, Tailwind CSS, Pinia
-- **AI**: Pluggable (Ollama/Qwen, Replicate)
+- **Frontend**: React 18, Vite, Tailwind CSS, Zustand
+- **AI**: Pluggable (Gemini, HuggingFace, Claude, Ollama)
 
 ## Configuration
 
 Copy `apps/backend/.env.example` to `apps/backend/.env` and configure:
 
 ```bash
-# AI Provider: placeholder (default), ollama, replicate
+# AI Provider: placeholder (default), gemini, huggingface, claude, ollama
 AI_PROVIDER=placeholder
+
+# For Gemini (free tier)
+GEMINI_API_KEY=your-key
 
 # For Ollama (local)
 OLLAMA_BASE_URL=http://localhost:11434
@@ -79,6 +78,6 @@ uv run python manage.py createsuperuser # Create admin user
 
 ```bash
 cd apps/frontend
-pnpm dev      # Dev server
-pnpm build    # Production build
+npm run dev      # Dev server
+npm run build    # Production build
 ```

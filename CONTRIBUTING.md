@@ -3,7 +3,6 @@
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) >= 18
-- [pnpm](https://pnpm.io/) >= 8
 - [Python](https://www.python.org/) >= 3.11
 - [uv](https://docs.astral.sh/uv/) (Python package manager)
 - [Docker](https://www.docker.com/) (for PostgreSQL)
@@ -34,16 +33,15 @@ wardrobe-app/
 │   │   ├── wardrobe/     # Clothing items & outfits
 │   │   ├── ai/           # AI provider integrations
 │   │   └── config/       # Django settings & URLs
-│   └── frontend/         # Vue 3 + Vite SPA
+│   └── frontend/         # React 18 + Vite SPA
 │       └── src/
 │           ├── api/      # Axios API client
 │           ├── components/
-│           ├── stores/   # Pinia state management
+│           ├── stores/   # Zustand state management
 │           ├── views/
 │           └── router/
 ├── docker-compose.yml    # PostgreSQL service
-├── Makefile              # Dev commands
-└── pnpm-workspace.yaml   # Monorepo config
+└── Makefile              # Dev commands
 ```
 
 ## Development Workflow
@@ -78,13 +76,13 @@ uv run ruff check .
 cd apps/frontend
 
 # Dev server with hot reload
-pnpm dev
+npm run dev
 
 # Production build
-pnpm build
+npm run build
 
 # Lint
-pnpm lint
+npm run lint
 ```
 
 ### Database
@@ -106,31 +104,34 @@ Default credentials (see `docker-compose.yml`):
 
 Copy `apps/backend/.env.example` to `apps/backend/.env`. Key variables:
 
-| Variable          | Description                                      | Default                  |
-| ----------------- | ------------------------------------------------ | ------------------------ |
-| `SECRET_KEY`      | Django secret key                                | dev key (change in prod) |
-| `DEBUG`           | Debug mode                                       | `True`                   |
-| `DB_NAME`         | PostgreSQL database                              | `wardrobe`               |
-| `DB_USER`         | Database user                                    | `postgres`               |
-| `DB_PASSWORD`     | Database password                                | `postgres`               |
-| `AI_PROVIDER`     | AI backend: `placeholder`, `ollama`, `replicate` | `placeholder`            |
-| `OLLAMA_BASE_URL` | Ollama API URL                                   | `http://localhost:11434` |
-| `OLLAMA_MODEL`    | Ollama model name                                | `qwen3-vl:4b`            |
+| Variable          | Description                                                  | Default                  |
+| ----------------- | ------------------------------------------------------------ | ------------------------ |
+| `SECRET_KEY`      | Django secret key                                            | dev key (change in prod) |
+| `DEBUG`           | Debug mode                                                   | `True`                   |
+| `DB_NAME`         | PostgreSQL database                                          | `wardrobe`               |
+| `DB_USER`         | Database user                                                | `postgres`               |
+| `DB_PASSWORD`     | Database password                                            | `postgres`               |
+| `AI_PROVIDER`     | AI backend: `placeholder`, `gemini`, `huggingface`, `claude`, `ollama` | `placeholder`  |
+| `GEMINI_API_KEY`  | Google Gemini API key                                        |                          |
+| `OLLAMA_BASE_URL` | Ollama API URL                                               | `http://localhost:11434` |
+| `OLLAMA_MODEL`    | Ollama model name                                            | `qwen3-vl:4b`           |
 
 ## AI Providers
 
 The app supports pluggable AI providers for outfit suggestions:
 
 - **placeholder** (default) -- Returns mock suggestions, no external service needed.
-- **ollama** -- Uses a local Ollama instance with a vision-language model (e.g., Qwen2-VL).
-- **replicate** -- Uses the Replicate cloud API.
+- **gemini** -- Uses Google Gemini API (free tier available).
+- **huggingface** -- Uses HuggingFace Inference API.
+- **claude** -- Uses Anthropic Claude API.
+- **ollama** -- Uses a local Ollama instance with a vision-language model.
 
 Set `AI_PROVIDER` in your `.env` to switch providers.
 
 ## Code Style
 
 - **Python**: Formatted with [Ruff](https://docs.astral.sh/ruff/), line length 100, targeting Python 3.11+.
-- **JavaScript/Vue**: Linted with ESLint.
+- **JavaScript/React**: Standard conventions.
 - **CSS**: Tailwind CSS utility classes.
 
 ## License
