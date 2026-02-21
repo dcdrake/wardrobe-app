@@ -293,6 +293,64 @@ class HuggingFaceProvider(AIProvider):
                 yield chunk.choices[0].delta.content
 
 
+class GeminiProvider(AIProvider):
+    """Uses Google Gemini API directly via httpx."""
+
+    API_URL = "https://generativelanguage.googleapis.com/v1beta/models"
+
+    def __init__(self):
+        self.api_key = settings.GEMINI_API_KEY
+        self.model = settings.GEMINI_MODEL
+
+    def _image_media_type(self, image_path: str) -> str:
+        suffix = Path(image_path).suffix.lower().lstrip('.')
+        return f"image/{'jpeg' if suffix in ('jpg', 'jpeg') else suffix}"
+
+    def _request(self, contents, stream=False):
+        import httpx
+        url = f"{self.API_URL}/{self.model}:{'streamGenerateContent' if stream else 'generateContent'}?key={self.api_key}"
+        if stream:
+            url += "&alt=sse"
+        payload = {"contents": contents, "generationConfig": {"temperature": 0.4}}
+        if stream:
+            return httpx.stream("POST", url, json=payload, timeout=180.0)
+        response = httpx.post(url, json=payload, timeout=180.0)
+        response.raise_for_status()
+        return response.json()["candidates"][0]["content"]["parts"][0]["text"]
+
+    def analyze_clothing(self, image_path: str) -> dict:
+        image_b64 = base64.b64encode(Path(image_path).read_bytes()).decode()
+        media_type = self._image_media_type(image_path)
+        contents = [{"parts": [
+            {"inline_data": {"mime_type": media_type, "data": image_b64}},
+            {"text": self._get_analysis_prompt()},
+        ]}]
+        return self._parse_json(self._request(contents))
+
+    def suggest_outfits(self, wardrobe: list[dict], occasion: str) -> list[dict]:
+        contents = [{"parts": [{"text": self._get_outfit_prompt(wardrobe, occasion)}]}]
+        return self._parse_json(self._request(contents)).get('suggestions', [])
+
+    def suggest_outfits_stream(self, wardrobe: list[dict], occasion: str):
+        contents = [{"parts": [{"text": self._get_outfit_prompt(wardrobe, occasion)}]}]
+        with self._request(contents, stream=True) as response:
+            response.raise_for_status()
+            for line in response.iter_lines():
+                if not line or not line.startswith("data: "):
+                    continue
+                data = line[6:]
+                if data == "[DONE]":
+                    break
+                chunk = json.loads(data)
+                candidates = chunk.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    for part in parts:
+                        text = part.get("text", "")
+                        if text:
+                            yield text
+
+
 def get_ai_provider() -> AIProvider:
     provider = getattr(settings, 'AI_PROVIDER', 'placeholder')
     if provider == 'ollama':
@@ -301,4 +359,6 @@ def get_ai_provider() -> AIProvider:
         return ClaudeProvider()
     if provider == 'huggingface':
         return HuggingFaceProvider()
+    if provider == 'gemini':
+        return GeminiProvider()
     return PlaceholderProvider()

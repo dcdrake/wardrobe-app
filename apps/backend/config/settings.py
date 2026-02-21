@@ -137,6 +137,9 @@ HUGGINGFACE_API_KEY = os.getenv("HUGGINGFACE_API_KEY", "")
 HUGGINGFACE_VISION_MODEL = os.getenv("HUGGINGFACE_VISION_MODEL", "")
 HUGGINGFACE_TEXT_MODEL = os.getenv("HUGGINGFACE_TEXT_MODEL", "")
 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+
 # Production security settings
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
