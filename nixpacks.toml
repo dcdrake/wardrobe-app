@@ -1,0 +1,18 @@
+[phases.setup]
+nixPkgs = ["python311", "nodejs_20"]
+
+[phases.install]
+cmds = [
+    "npm install -g pnpm@9",
+    "cd apps/frontend && pnpm install --frozen-lockfile",
+    "cd apps/backend && pip install uv && uv sync --frozen",
+]
+
+[phases.build]
+cmds = [
+    "cd apps/frontend && pnpm build",
+    "cd apps/backend && python manage.py collectstatic --noinput",
+]
+
+[start]
+cmd = "cd apps/backend && python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --timeout 120"
