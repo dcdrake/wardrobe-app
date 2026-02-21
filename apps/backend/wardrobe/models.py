@@ -4,6 +4,39 @@ from django.conf import settings
 
 
 class ClothingItem(models.Model):
+    class Category(models.TextChoices):
+        TOP = 'top', 'Top'
+        BOTTOM = 'bottom', 'Bottom'
+        SHOES = 'shoes', 'Shoes'
+        OUTERWEAR = 'outerwear', 'Outerwear'
+        FULL_BODY = 'full_body', 'Full Body'
+        ACCESSORY = 'accessory', 'Accessory'
+
+    ITEM_TYPE_TO_CATEGORY = {
+        # Tops
+        'tshirt': 'top', 'shirt': 'top', 'polo': 'top', 'sweater': 'top',
+        'hoodie': 'top', 'tank_top': 'top', 'blouse': 'top', 'crop_top': 'top',
+        # Outerwear
+        'jacket': 'outerwear', 'blazer': 'outerwear', 'coat': 'outerwear',
+        'vest': 'outerwear', 'cardigan': 'outerwear',
+        # Bottoms
+        'jeans': 'bottom', 'chinos': 'bottom', 'trousers': 'bottom',
+        'shorts': 'bottom', 'skirt': 'bottom', 'leggings': 'bottom',
+        # Full body
+        'dress': 'full_body', 'jumpsuit': 'full_body', 'romper': 'full_body',
+        'suit': 'full_body',
+        # Shoes
+        'sneakers': 'shoes', 'boots': 'shoes', 'dress_shoes': 'shoes',
+        'loafers': 'shoes', 'sandals': 'shoes', 'heels': 'shoes', 'flats': 'shoes',
+        # Accessories
+        'belt': 'accessory', 'watch': 'accessory', 'tie': 'accessory',
+        'bow_tie': 'accessory', 'hat': 'accessory', 'scarf': 'accessory',
+        'sunglasses': 'accessory', 'necklace': 'accessory', 'bracelet': 'accessory',
+        'earrings': 'accessory', 'ring': 'accessory', 'bag': 'accessory',
+        'backpack': 'accessory', 'pocket_square': 'accessory',
+        'cufflinks': 'accessory', 'gloves': 'accessory',
+    }
+
     class ItemType(models.TextChoices):
         # Tops
         TSHIRT = 'tshirt', 'T-Shirt'
@@ -79,6 +112,8 @@ class ClothingItem(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='clothing_items')
     image = models.ImageField(upload_to='clothing/%Y/%m/')
     item_type = models.CharField(max_length=30, choices=ItemType.choices, blank=True)
+    category = models.CharField(max_length=20, choices=Category.choices, blank=True)
+    description = models.CharField(max_length=200, blank=True)
     colors = models.JSONField(default=list)
     pattern = models.CharField(max_length=20, choices=Pattern.choices, default=Pattern.SOLID)
     material = models.CharField(max_length=50, blank=True)

@@ -40,3 +40,5 @@ apps/backend/staticfiles/
 
 # Local Ollama models
 .ollama/
+
+.claude/
